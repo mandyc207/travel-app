@@ -107,47 +107,34 @@
         // Places data from server
         const places = {{ places_json | safe }};
         
-        // Geocode and add markers
-        async function geocodeAndMark(place) {
-            const query = encodeURIComponent(`${place.name} ${place.address} ${place.city}`);
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+        // Add markers using stored coordinates
+        function addMarker(place) {
+            if (!place.latitude || !place.longitude) return;
             
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data && data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lon = parseFloat(data[0].lon);
-                    
-                    const color = categoryColors[place.category] || '#95A5A6';
-                    
-                    const marker = L.circleMarker([lat, lon], {
-                        radius: 10,
-                        fillColor: color,
-                        color: '#fff',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map);
-                    
-                    marker.bindPopup(`
-                        <div class="popup-content">
-                            <strong>${place.name}</strong><br>
-                            📍 ${place.district || place.address || 'No address'}<br>
-                            🏷️ ${place.category}<br>
-                            ${place.notes ? `📝 ${place.notes}<br>` : ''}
-                            <a href="${place.maps_url}" target="_blank">📍 Google Maps</a>
-                        </div>
-                    `);
-                }
-            } catch (e) {
-                console.log('Could not geocode:', place.name);
-            }
+            const color = categoryColors[place.category] || '#95A5A6';
+            
+            const marker = L.circleMarker([place.latitude, place.longitude], {
+                radius: 10,
+                fillColor: color,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div class="popup-content">
+                    <strong>${place.name}</strong><br>
+                    📍 ${place.district || place.address || 'No address'}<br>
+                    🏷️ ${place.category}<br>
+                    ${place.notes ? `📝 ${place.notes}<br>` : ''}
+                    <a href="${place.maps_url}" target="_blank">📍 Google Maps</a>
+                </div>
+            `);
         }
         
-        // Geocode all places
-        places.forEach(place => geocodeAndMark(place));
+        // Add all places with stored coordinates
+        places.forEach(place => addMarker(place)); 
     </script>
 </body>
 </html>

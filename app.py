@@ -42,9 +42,18 @@ def init_db():
             address TEXT DEFAULT '',
             notes TEXT DEFAULT '',
             google_maps_query TEXT DEFAULT '',
+            latitude REAL DEFAULT NULL,
+            longitude REAL DEFAULT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Add lat/lng columns if they don't exist (for existing databases)
+    try:
+        cursor.execute('ALTER TABLE places ADD COLUMN latitude REAL DEFAULT NULL')
+        cursor.execute('ALTER TABLE places ADD COLUMN longitude REAL DEFAULT NULL')
+    except:
+        pass
     
     conn.commit()
     conn.close()
@@ -55,6 +64,27 @@ def create_google_maps_link(name, address=''):
     if address:
         query = f"{name} {address}"
     return f"https://www.google.com/maps/search/?api=1&query=" + query.replace(' ', '+')
+
+def geocode_address(name, address='', city=''):
+    """Geocode an address and return (lat, lng) or (None, None)"""
+    import time
+    import urllib.request
+    import json
+    
+    query = f"{name} {address} {city}".strip()
+    url = f"https://nominatim.openstreetmap.org/search?format=json&q={urllib.parse.quote(query)}&limit=1"
+    
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'TravelCollectorApp/1.0'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            if data and len(data) > 0:
+                return float(data[0]['lat']), float(data[0]['lon'])
+    except Exception as e:
+        print(f"Geocoding failed for {query}: {e}")
+    return None, None
+
+import urllib.parse
 
 # Initialize database on startup
 init_db()
@@ -205,17 +235,20 @@ def api_add_place():
     if not city or not name or not category:
         return jsonify({'error': 'City, name, and category are required'}), 400
     
+    # Geocode the address
+    lat, lng = geocode_address(name, address, city)
+    
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO places (city, name, category, district, address, notes)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (city, name, category, district, address, notes))
+        INSERT INTO places (city, name, category, district, address, notes, latitude, longitude)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (city, name, category, district, address, notes, lat, lng))
     conn.commit()
     place_id = cursor.lastrowid
     conn.close()
     
-    return jsonify({'success': True, 'id': place_id})
+    return jsonify({'success': True, 'id': place_id, 'latitude': lat, 'longitude': lng})
 
 @app.route('/delete/<int:place_id>', methods=['POST'])
 def delete_place(place_id):
