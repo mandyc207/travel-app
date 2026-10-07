@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Place - Travel Collector</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .form-group label .required {
+            color: #ff4444;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-group .hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .category-option {
+            display: none;
+        }
+        
+        .category-option + label {
+            display: block;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-option + label .emoji {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .category-option:checked + label {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .category-option[value="Restaurant"] + label .emoji::before { content: "🍽️"; }
+        .category-option[value="Sightseeing"] + label .emoji::before { content: "🏛️"; }
+        .category-option[value="Activities"] + label .emoji::before { content: "🎯"; }
+        .category-option[value="Shopping"] + label .emoji::before { content: "🛍️"; }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .quick-add {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .quick-add h3 {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .quick-add-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .quick-add-btn {
+            padding: 8px 15px;
+            background: #e8e8e8;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        
+        .quick-add-btn:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="/" class="back-btn">←</a>
+        <h1>Add New Place</h1>
+    </div>
+    
+    <div class="container">
+        <form action="/add" method="POST">
+            <div class="form-group">
+                <label>City <span class="required">*</span></label>
+                <input type="text" name="city" placeholder="e.g. Los Angeles, Tokyo, Hong Kong" required list="cities">
+                <datalist id="cities">
+                    {% for c in cities %}
+                    <option value="{{ c }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            
+            <div class="form-group">
+                <label>Place Name <span class="required">*</span></label>
+                <input type="text" name="name" placeholder="e.g. Hollywood Sign, Tsukiji Market" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Category <span class="required">*</span></label>
+                <div class="category-options">
+                    <input type="radio" id="cat-restaurant" name="category" value="Restaurant" class="category-option" required>
+                    <label for="cat-restaurant">
+                        <span class="emoji"></span>
+                        Restaurant
+                    </label>
+                    
+                    <input type="radio" id="cat-sightseeing" name="category" value="Sightseeing" class="category-option">
+                    <label for="cat-sightseeing">
+                        <span class="emoji"></span>
+                        Sightseeing
+                    </label>
+                    
+                    <input type="radio" id="cat-activities" name="category" value="Activities" class="category-option">
+                    <label for="cat-activities">
+                        <span class="emoji"></span>
+                        Activities
+                    </label>
+                    
+                    <input type="radio" id="cat-shopping" name="category" value="Shopping" class="category-option">
+                    <label for="cat-shopping">
+                        <span class="emoji"></span>
+                        Shopping
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>District / Area</label>
+                <input type="text" name="district" placeholder="e.g. Hollywood, Shibuya, Causeway Bay">
+                <div class="hint">Helps group places for route planning</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" name="address" placeholder="Full address (optional)">
+            </div>
+            
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Opening hours, tips, recommendations..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">Add Place</button>
+        </form>
+        
+        <div class="quick-add">
+            <h3>Quick Add - Cities</h3>
+            <div class="quick-add-list">
+                {% for c in cities %}
+                <button type="button" class="quick-add-btn" onclick="document.querySelector('[name=city]').value='{{ c }}'">{{ c }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
