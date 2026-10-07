@@ -138,11 +138,15 @@ def index():
 
 @app.route('/map')
 def map_view():
-    """Map view - show all places on a map"""
+    """Map view - show all places with Google Maps links"""
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM places ORDER BY city, category, name')
     places = cursor.fetchall()
+    
+    # Get unique cities
+    cursor.execute('SELECT DISTINCT city FROM places ORDER BY city')
+    cities = [row['city'] for row in cursor.fetchall()]
     conn.close()
     
     # Convert to list of dicts for JSON
@@ -153,7 +157,7 @@ def map_view():
         places_list.append(p)
     
     import json
-    return render_template('map.html', places=places, places_json=json.dumps(places_list))
+    return render_template('map.html', places=places_list, cities=cities, places_json=json.dumps(places_list))
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_place():

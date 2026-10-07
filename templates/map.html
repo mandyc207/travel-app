@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel Collector - Map View</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f5f5;
+            min-height: 100vh;
         }
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,6 +22,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .header h1 {
             font-size: 1.2rem;
@@ -29,46 +34,81 @@
             color: white;
             text-decoration: none;
             font-size: 0.9rem;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
         }
-        #map {
-            height: calc(100vh - 60px);
-            width: 100%;
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
         }
-        .legend {
-            position: absolute;
-            bottom: 30px;
-            left: 10px;
+        .place-card {
             background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            font-size: 0.85rem;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .legend-item {
+        .place-header {
             display: flex;
-            align-items: center;
-            margin: 5px 0;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .popup-content {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        .popup-content strong {
-            font-size: 1rem;
+        .place-name {
+            font-size: 1.1rem;
+            font-weight: 600;
             color: #333;
         }
-        .popup-content a {
-            display: inline-block;
-            margin-top: 5px;
-            color: #667eea;
+        .place-category {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            color: white;
+        }
+        .category-Food { background: #FF6B6B; }
+        .category-Sightseeing { background: #4ECDC4; }
+        .category-Activities { background: #45B7D1; }
+        .category-Shopping { background: #96CEB4; }
+        .place-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .place-details div {
+            margin: 4px 0;
+        }
+        .gmaps-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #4285F4;
+            color: white;
+            text-align: center;
             text-decoration: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .gmaps-btn:hover {
+            background: #3367D6;
+        }
+        .city-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .notes {
+            font-size: 0.85rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -78,63 +118,32 @@
         <a href="/">← List View</a>
     </div>
     
-    <div id="map"></div>
-    
-    <div class="legend">
-        <div class="legend-item"><span class="legend-color" style="background:#FF6B6B"></span> Food</div>
-        <div class="legend-item"><span class="legend-color" style="background:#4ECDC4"></span> Sightseeing</div>
-        <div class="legend-item"><span class="legend-color" style="background:#45B7D1"></span> Activities</div>
-        <div class="legend-item"><span class="legend-color" style="background:#96CEB4"></span> Shopping</div>
+    <div class="container">
+        {% for city in cities %}
+        <div class="city-header">🏙️ {{ city }}</div>
+        {% for place in places if place.city == city %}
+        <div class="place-card">
+            <div class="place-header">
+                <div class="place-name">{{ place.name }}</div>
+                <div class="place-category category-{{ place.category }}">{{ place.category }}</div>
+            </div>
+            <div class="place-details">
+                {% if place.district %}
+                <div>📍 {{ place.district }}</div>
+                {% endif %}
+                {% if place.address %}
+                <div>{{ place.address }}</div>
+                {% endif %}
+                {% if place.notes %}
+                <div class="notes">{{ place.notes }}</div>
+                {% endif %}
+            </div>
+            <a href="{{ place.maps_url }}" target="_blank" class="gmaps-btn">
+                📍 Open in Google Maps
+            </a>
+        </div>
+        {% endfor %}
+        {% endfor %}
     </div>
-
-    <script>
-        // Category colors
-        const categoryColors = {
-            'Food': '#FF6B6B',
-            'Sightseeing': '#4ECDC4',
-            'Activities': '#45B7D1',
-            'Shopping': '#96CEB4'
-        };
-        
-        // Initialize map centered on Fukuoka
-        const map = L.map('map').setView([33.5904, 130.4017], 12);
-        
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        // Places data from server
-        const places = {{ places_json | safe }};
-        
-        // Add markers using stored coordinates
-        function addMarker(place) {
-            if (!place.latitude || !place.longitude) return;
-            
-            const color = categoryColors[place.category] || '#95A5A6';
-            
-            const marker = L.circleMarker([place.latitude, place.longitude], {
-                radius: 10,
-                fillColor: color,
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map);
-            
-            marker.bindPopup(`
-                <div class="popup-content">
-                    <strong>${place.name}</strong><br>
-                    📍 ${place.district || place.address || 'No address'}<br>
-                    🏷️ ${place.category}<br>
-                    ${place.notes ? `📝 ${place.notes}<br>` : ''}
-                    <a href="${place.maps_url}" target="_blank">📍 Google Maps</a>
-                </div>
-            `);
-        }
-        
-        // Add all places with stored coordinates
-        places.forEach(place => addMarker(place)); 
-    </script>
 </body>
 </html>
