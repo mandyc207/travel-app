@@ -106,6 +106,25 @@ def index():
         view_mode=view_mode
     )
 
+@app.route('/map')
+def map_view():
+    """Map view - show all places on a map"""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM places ORDER BY city, category, name')
+    places = cursor.fetchall()
+    conn.close()
+    
+    # Convert to list of dicts for JSON
+    places_list = []
+    for place in places:
+        p = dict(place)
+        p['maps_url'] = create_google_maps_link(p['name'], p.get('address', ''))
+        places_list.append(p)
+    
+    import json
+    return render_template('map.html', places=places, places_json=json.dumps(places_list))
+
 @app.route('/add', methods=['GET', 'POST'])
 def add_place():
     """Add a new place"""

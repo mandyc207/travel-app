@@ -258,8 +258,9 @@
                 {% endfor %}
             </select>
             <div class="view-toggle">
-                <button onclick="window.location.href='/?city={{ selected_city }}&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 By Category</button>
-                <button onclick="window.location.href='/?city={{ selected_city }}&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 By District</button>
+                <button onclick="window.location.href='/?city={{ selected_city }}&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
+                <button onclick="window.location.href='/?city={{ selected_city }}&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
+                <button onclick="window.location.href='/map'" style="background: transparent; color: rgba(255,255,255,0.9);">🗺️ Map</button>
             </div>
         </div>
     </div>
