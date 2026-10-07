@@ -4,18 +4,23 @@ A simple app to collect and organize travel places by city and category.
 View by category or by district for route planning.
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for
 import sqlite3
 import os
 from datetime import datetime
+
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
 app.config['DATABASE'] = 'travel.db'
 app.config['GOOGLE_MAPS_SEARCH_URL'] = 'https://www.google.com/maps/search/?api=1&query='
 
+# Force UTF-8 encoding for the whole app
+app.config['JSON_AS_ASCII'] = False
+
 def get_db():
-    """Get database connection"""
+    """Get database connection with UTF-8 support"""
     conn = sqlite3.connect(app.config['DATABASE'])
+    conn.execute('PRAGMA encoding = "UTF-8"')
     conn.row_factory = sqlite3.Row
     return conn
 
