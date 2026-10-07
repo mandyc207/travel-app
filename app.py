@@ -11,7 +11,10 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
-app.config['DATABASE'] = 'travel.db'
+app.config['DATABASE'] = os.path.join(os.path.dirname(__file__), 'data', 'travel.db')
+
+# Ensure data directory exists
+os.makedirs(os.path.dirname(app.config['DATABASE']), exist_ok=True)
 app.config['GOOGLE_MAPS_SEARCH_URL'] = 'https://www.google.com/maps/search/?api=1&query='
 
 # Force UTF-8 encoding for the whole app
@@ -206,4 +209,5 @@ def delete_place(place_id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Use port 5000 for container, map to 5003 externally via docker-compose
+    app.run(host='0.0.0.0', port=5000, debug=False)
