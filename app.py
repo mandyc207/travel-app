@@ -127,12 +127,15 @@ def index():
                 grouped[key] = []
             grouped[key].append(place)
     
+    # Get selected city for filter display
+    selected_city = city
+    
     return render_template(
         'index.html',
         places=places,
         grouped=grouped,
         cities=cities,
-        selected_city=city,
+        selected_city=selected_city,
         view_mode=view_mode
     )
 

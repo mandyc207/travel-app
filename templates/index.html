@@ -254,15 +254,23 @@
     <div class="header">
         <h1>🌍 Travel Collector</h1>
         <div class="filters">
-            <select onchange="window.location.href='/?city=' + this.value + '&view={{ view_mode }}'">
+            <select id="filter-country" onchange="filterCountryChanged()" style="flex:1;min-width:100px;">
+                <option value="">All Countries</option>
+                <option value="Japan">Japan</option>
+                <option value="Hong Kong">Hong Kong</option>
+                <option value="Taiwan">Taiwan</option>
+                <option value="South Korea">South Korea</option>
+                <option value="Thailand">Thailand</option>
+            </select>
+            <select id="filter-prefecture" onchange="filterPrefectureChanged()" style="flex:1;min-width:100px;" disabled>
+                <option value="">All Prefectures</option>
+            </select>
+            <select id="filter-city" onchange="filterCityChanged()" style="flex:1;min-width:100px;" disabled>
                 <option value="">All Cities</option>
-                {% for c in cities %}
-                <option value="{{ c }}" {% if c == selected_city %}selected{% endif %}>{{ c }}</option>
-                {% endfor %}
             </select>
             <div class="view-toggle">
-                <button onclick="window.location.href='/?city={{ selected_city }}&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
-                <button onclick="window.location.href='/?city={{ selected_city }}&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
+                <button onclick="window.location.href='/?city=' + document.getElementById('filter-city').value + '&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
+                <button onclick="window.location.href='/?city=' + document.getElementById('filter-city').value + '&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
                 <button onclick="window.location.href='/map'" style="background: transparent; color: rgba(255,255,255,0.9);">🗺️ Map</button>
             </div>
         </div>
@@ -333,5 +341,118 @@
             </div>
         {% endif %}
     </div>
+
+    <script>
+    const locationData = {
+        "Japan": {
+            "Fukuoka Prefecture": {
+                "Fukuoka (Fukuoka Prefecture, Japan)": ["Hakata", "Tenjin", "Daimyo", "Yakuin", "Nakasu", "Itoshima", "Chuo"],
+                "Dazaifu": [],
+                "Kurume": []
+            },
+            "Kitakyushu Prefecture": {
+                "Kitakyushu (Kitakyushu Prefecture, Japan)": ["Yahata Higashi", "Kokura", "Moji", "Tobata", "Yahata Nishi"]
+            },
+            "Tokyo Prefecture": {
+                "Tokyo (Tokyo Prefecture, Japan)": ["Shibuya", "Shinjuku", "Harajuku", "Ikebukuro", "Ueno", "Akihabara", "Ginza", "Roppongi"],
+                "Yokohama": ["Minato Mirai", "Sakuragichō", "Grove"],
+                "Osaka": ["Shinsaibashi", "Namba", "Umeda", "Dotonbori", "Kyobashi"]
+            },
+            "Hokkaido Prefecture": {
+                "Sapporo": ["Susukino", "Odori", "Sapporo Station"]
+            },
+            "Okinawa Prefecture": {
+                "Naha": ["Kokusai Dōri", "Shuri", "American Village"]
+            }
+        },
+        "Hong Kong": {
+            "Hong Kong Island": {
+                "Hong Kong (Hong Kong)": ["Central", "Sheung Wan", "Admiralty", "Causeway Bay", "Wan Chai", "North Point", "Sai Wan", "Aberdeen"],
+                "Repulse Bay": [],
+                "Stanley": []
+            },
+            "Kowloon": {
+                "Kowloon": ["Tsim Sha Tsui", "Mong Kok", "Sham Shui Po", "Jordan", "Yau Ma Tei"],
+                "Hung Hom": [],
+                "San Po Kong": []
+            },
+            "New Territories": {
+                "Sha Tin": [],
+                "Tuen Mun": [],
+                "Sai Kung": []
+            }
+        },
+        "Taiwan": {
+            "Taipei": {
+                "Taipei (Taipei)": ["Ximending", "Shilin", "Daan", "Songshan", "Zhongzheng"],
+                "Beitou": []
+            },
+            "Taichung": {
+                "Taichung": ["West District", "Situn"]
+            }
+        },
+        "South Korea": {
+            "Seoul": {
+                "Seoul (Seoul)": ["Gangnam", "Itaewon", "Hongdae", "Insadong", "Myeongdong", "Jongno"]
+            },
+            "Busan": {
+                "Busan": ["Haeundae", "Nampo", "Seomyun"]
+            }
+        },
+        "Thailand": {
+            "Bangkok": {
+                "Bangkok (Bangkok)": ["Sukhumvit", "Silom", "Siam", "Rattanakosin", "Thong Lo"]
+            }
+        }
+    };
+
+    const countrySelect = document.getElementById('filter-country');
+    const prefectureSelect = document.getElementById('filter-prefecture');
+    const citySelect = document.getElementById('filter-city');
+
+    function filterCountryChanged() {
+        const country = countrySelect.value;
+        prefectureSelect.innerHTML = '<option value="">All Prefectures</option>';
+        citySelect.innerHTML = '<option value="">All Cities</option>';
+        prefectureSelect.disabled = !country;
+        citySelect.disabled = true;
+        
+        if (country && locationData[country]) {
+            Object.keys(locationData[country]).forEach(pref => {
+                const opt = document.createElement('option');
+                opt.value = pref;
+                opt.textContent = pref;
+                prefectureSelect.appendChild(opt);
+            });
+        }
+        applyFilter();
+    }
+
+    function filterPrefectureChanged() {
+        const country = countrySelect.value;
+        const prefecture = prefectureSelect.value;
+        citySelect.innerHTML = '<option value="">All Cities</option>';
+        citySelect.disabled = !prefecture;
+        
+        if (country && prefecture && locationData[country][prefecture]) {
+            Object.keys(locationData[country][prefecture]).forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.textContent = city;
+                citySelect.appendChild(opt);
+            });
+        }
+        applyFilter();
+    }
+
+    function filterCityChanged() {
+        applyFilter();
+    }
+
+    function applyFilter() {
+        const city = citySelect.value;
+        window.location.href = '/?city=' + encodeURIComponent(city) + '&view={{ view_mode }}';
+    }
+    </script>
 </body>
 </html>
