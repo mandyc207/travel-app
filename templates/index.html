@@ -413,8 +413,21 @@
 
     function filterCountryChanged() {
         const country = countrySelect.value;
-        prefectureSelect.innerHTML = '<option value="">All Prefectures</option>';
-        citySelect.innerHTML = '<option value="">All Cities</option>';
+        
+        // Clear prefecture and city dropdowns properly
+        while (prefectureSelect.firstChild) prefectureSelect.removeChild(prefectureSelect.firstChild);
+        while (citySelect.firstChild) citySelect.removeChild(citySelect.firstChild);
+        
+        const prefAllOpt = document.createElement('option');
+        prefAllOpt.value = '';
+        prefAllOpt.textContent = 'All Prefectures';
+        prefectureSelect.appendChild(prefAllOpt);
+        
+        const cityAllOpt = document.createElement('option');
+        cityAllOpt.value = '';
+        cityAllOpt.textContent = 'All Cities';
+        citySelect.appendChild(cityAllOpt);
+        
         prefectureSelect.disabled = !country;
         citySelect.disabled = true;
         
@@ -431,7 +444,15 @@
     function filterPrefectureChanged() {
         const country = countrySelect.value;
         const prefecture = prefectureSelect.value;
-        citySelect.innerHTML = '<option value="">All Cities</option>';
+        
+        // Clear city dropdown properly
+        while (citySelect.firstChild) citySelect.removeChild(citySelect.firstChild);
+        
+        const cityAllOpt = document.createElement('option');
+        cityAllOpt.value = '';
+        cityAllOpt.textContent = 'All Cities';
+        citySelect.appendChild(cityAllOpt);
+        
         citySelect.disabled = !prefecture;
         
         if (country && prefecture && locationData[country][prefecture]) {
