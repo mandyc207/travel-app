@@ -451,6 +451,39 @@
         const city = citySelect.value;
         window.location.href = '/?city=' + encodeURIComponent(city) + '&view={{ view_mode }}';
     }
+
+    // Restore dropdown state from URL on page load
+    function restoreState() {
+        const params = new URLSearchParams(window.location.search);
+        const city = params.get('city');
+        if (!city) return;
+        
+        // Find which country/prefecture this city belongs to
+        for (const [country, prefectures] of Object.entries(locationData)) {
+            for (const [prefecture, cities] of Object.entries(prefectures)) {
+                if (cities.hasOwnProperty(city)) {
+                    // Found the city!
+                    countrySelect.value = country;
+                    countrySelect.dispatchEvent(new Event('change'));
+                    
+                    // Wait for prefecture options to load, then select
+                    setTimeout(() => {
+                        prefectureSelect.value = prefecture;
+                        prefectureSelect.dispatchEvent(new Event('change'));
+                        
+                        // Wait for city options to load, then select
+                        setTimeout(() => {
+                            citySelect.value = city;
+                        }, 50);
+                    }, 50);
+                    return;
+                }
+            }
+        }
+    }
+    
+    // Run on page load
+    restoreState();
     </script>
 </body>
 </html>
