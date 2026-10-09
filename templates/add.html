@@ -5,172 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Place - Travel Collector</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            min-height: 100vh;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .back-btn {
-            color: white;
-            text-decoration: none;
-            font-size: 1.5rem;
-        }
-        
-        .header h1 {
-            font-size: 1.3rem;
-        }
-        
-        .container {
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #555;
-        }
-        
-        .form-group label .required {
-            color: #ff4444;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .form-group .hint {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .category-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        
-        .category-option {
-            display: none;
-        }
-        
-        .category-option + label {
-            display: block;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .category-option + label .emoji {
-            font-size: 1.5rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .category-option:checked + label {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+        .back-btn { color: white; text-decoration: none; font-size: 1.5rem; }
+        .header h1 { font-size: 1.3rem; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #555; }
+        .form-group label .required { color: #ff4444; }
+        .form-group select, .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group select:focus, .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group .hint { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .location-summary { background: #f0f4ff; padding: 12px 15px; border-radius: 10px; margin-bottom: 20px; }
+        .location-summary .label { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .location-summary .path { font-size: 1rem; color: #667eea; font-weight: 500; }
+        .category-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .category-option { display: none; }
+        .category-option + label { display: block; padding: 10px 5px; border: 2px solid #e0e0e0; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; font-size: 0.8rem; }
+        .category-option + label .emoji { font-size: 1.2rem; display: block; margin-bottom: 3px; }
+        .category-option:checked + label { border-color: #667eea; background: rgba(102, 126, 234, 0.1); }
         .category-option[value="Restaurant"] + label .emoji::before { content: "🍽️"; }
         .category-option[value="Sightseeing"] + label .emoji::before { content: "🏛️"; }
         .category-option[value="Activities"] + label .emoji::before { content: "🎯"; }
         .category-option[value="Shopping"] + label .emoji::before { content: "🛍️"; }
         .category-option[value="Hotel"] + label .emoji::before { content: "🏨"; }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        
-        .submit-btn:hover {
-            opacity: 0.9;
-        }
-        
-        .quick-add {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
-        
-        .quick-add h3 {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
-        
-        .quick-add-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .quick-add-btn {
-            padding: 8px 15px;
-            background: #e8e8e8;
-            border: none;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-        
-        .quick-add-btn:hover {
-            background: #ddd;
-        }
+        .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .submit-btn:hover { opacity: 0.9; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .quick-add { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .quick-add h3 { font-size: 1rem; color: #666; margin-bottom: 10px; }
+        .quick-add-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .quick-add-btn { padding: 8px 15px; background: #e8e8e8; border: none; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .quick-add-btn:hover { background: #ddd; }
+        .quick-add-btn.active { background: #667eea; color: white; }
+        @media (max-width: 500px) { .category-options { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
@@ -180,15 +50,44 @@
     </div>
     
     <div class="container">
-        <form action="/add" method="POST">
+        <form action="/add" method="POST" id="placeForm">
+            <div class="location-summary">
+                <div class="label">📍 Location</div>
+                <div class="path" id="locationPath">—</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Country <span class="required">*</span></label>
+                <select id="country" name="country" required>
+                    <option value="">Select Country</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Hong Kong">Hong Kong</option>
+                    <option value="Taiwan">Taiwan</option>
+                    <option value="South Korea">South Korea</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Prefecture / Region <span class="required">*</span></label>
+                <select id="prefecture" name="prefecture" required disabled>
+                    <option value="">Select Country First</option>
+                </select>
+            </div>
+            
             <div class="form-group">
                 <label>City <span class="required">*</span></label>
-                <input type="text" name="city" placeholder="e.g. Los Angeles, Tokyo, Hong Kong" required list="cities">
-                <datalist id="cities">
-                    {% for c in cities %}
-                    <option value="{{ c }}">
-                    {% endfor %}
-                </datalist>
+                <select id="city" name="city" required disabled>
+                    <option value="">Select Prefecture First</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>District / Ward (Optional)</label>
+                <select id="district" name="district" disabled>
+                    <option value="">Select City First</option>
+                </select>
             </div>
             
             <div class="form-group">
@@ -199,42 +98,21 @@
             <div class="form-group">
                 <label>Category <span class="required">*</span></label>
                 <div class="category-options">
-                    <input type="radio" id="cat-restaurant" name="category" value="Restaurant" class="category-option" required>
-                    <label for="cat-restaurant">
-                        <span class="emoji"></span>
-                        Restaurant
-                    </label>
+                    <input type="radio" id="cat-restaurant" name="category" value="Restaurant" class="category-option" checked>
+                    <label for="cat-restaurant"><span class="emoji"></span>Restaurant</label>
                     
                     <input type="radio" id="cat-sightseeing" name="category" value="Sightseeing" class="category-option">
-                    <label for="cat-sightseeing">
-                        <span class="emoji"></span>
-                        Sightseeing
-                    </label>
+                    <label for="cat-sightseeing"><span class="emoji"></span>Sightseeing</label>
                     
                     <input type="radio" id="cat-activities" name="category" value="Activities" class="category-option">
-                    <label for="cat-activities">
-                        <span class="emoji"></span>
-                        Activities
-                    </label>
+                    <label for="cat-activities"><span class="emoji"></span>Activities</label>
                     
                     <input type="radio" id="cat-shopping" name="category" value="Shopping" class="category-option">
-                    <label for="cat-shopping">
-                        <span class="emoji"></span>
-                        Shopping
-                    </label>
+                    <label for="cat-shopping"><span class="emoji"></span>Shopping</label>
                     
                     <input type="radio" id="cat-hotel" name="category" value="Hotel" class="category-option">
-                    <label for="cat-hotel">
-                        <span class="emoji"></span>
-                        Hotel
-                    </label>
+                    <label for="cat-hotel"><span class="emoji"></span>Hotel</label>
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label>District / Area</label>
-                <input type="text" name="district" placeholder="e.g. Hollywood, Shibuya, Causeway Bay">
-                <div class="hint">Helps group places for route planning</div>
             </div>
             
             <div class="form-group">
@@ -247,17 +125,171 @@
                 <textarea name="notes" placeholder="Opening hours, tips, recommendations..."></textarea>
             </div>
             
-            <button type="submit" class="submit-btn">Add Place</button>
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>Select Location First</button>
         </form>
         
         <div class="quick-add">
-            <h3>Quick Add - Cities</h3>
+            <h3>Quick Select - Countries</h3>
             <div class="quick-add-list">
-                {% for c in cities %}
-                <button type="button" class="quick-add-btn" onclick="document.querySelector('[name=city]').value='{{ c }}'">{{ c }}</button>
-                {% endfor %}
+                <button type="button" class="quick-add-btn" onclick="selectCountry('Japan')">Japan</button>
+                <button type="button" class="quick-add-btn" onclick="selectCountry('Hong Kong')">Hong Kong</button>
+                <button type="button" class="quick-add-btn" onclick="selectCountry('Taiwan')">Taiwan</button>
+                <button type="button" class="quick-add-btn" onclick="selectCountry('South Korea')">South Korea</button>
+                <button type="button" class="quick-add-btn" onclick="selectCountry('Thailand')">Thailand</button>
             </div>
         </div>
     </div>
+
+    <script>
+    const locationData = {
+        "Japan": {
+            "Fukuoka Prefecture": {
+                "Fukuoka": ["Hakata", "Tenjin", "Daimyo", "Yakuin", "Nakasu", "Itoshima", "Chuo"],
+                "Kitakyushu": ["Yahata Higashi", "Kokura", "Moji", "Tobata", "Yahata Nishi"],
+                "Dazaifu": [],
+                "Kurume": []
+            },
+            "Tokyo Prefecture": {
+                "Tokyo": ["Shibuya", "Shinjuku", "Harajuku", "Ikebukuro", "Ueno", "Akihabara", "Ginza", "Roppongi"],
+                "Yokohama": ["Minato Mirai", "Sakuragichō", "Grove"],
+                "Osaka": ["Shinsaibashi", "Namba", "Umeda", "Dotonbori", "Kyobashi"]
+            },
+            "Hokkaido Prefecture": {
+                "Sapporo": ["Susukino", "Odori", "Sapporo Station"]
+            },
+            "Okinawa Prefecture": {
+                "Naha": ["Kokusai Dōri", "Shuri", "American Village"]
+            }
+        },
+        "Hong Kong": {
+            "Hong Kong Island": {
+                "Hong Kong": ["Central", "Sheung Wan", "Admiralty", "Causeway Bay", "Wan Chai", "North Point", "Sai Wan", "Aberdeen"],
+                "Repulse Bay": [],
+                "Stanley": []
+            },
+            "Kowloon": {
+                "Kowloon": ["Tsim Sha Tsui", "Mong Kok", "Sham Shui Po", "Jordan", "Yau Ma Tei"],
+                "Hung Hom": [],
+                "San Po Kong": []
+            },
+            "New Territories": {
+                "Sha Tin": [],
+                "Tuen Mun": [],
+                "Sai Kung": []
+            }
+        },
+        "Taiwan": {
+            "Taipei": {
+                "Taipei": ["Ximending", "Shilin", "Daan", "Songshan", "Zhongzheng"],
+                "Beitou": []
+            },
+            "Taichung": {
+                "Taichung": ["West District", "Situn"]
+            }
+        },
+        "South Korea": {
+            "Seoul": {
+                "Seoul": ["Gangnam", "Itaewon", "Hongdae", "Insadong", "Myeongdong", "Jongno"]
+            },
+            "Busan": {
+                "Busan": ["Haeundae", "Nampo", "Seomyun"]
+            }
+        },
+        "Thailand": {
+            "Bangkok": {
+                "Bangkok": ["Sukhumvit", "Silom", "Siam", "Rattanakosin", "Thong Lo"]
+            }
+        }
+    };
+
+    const countrySelect = document.getElementById('country');
+    const prefectureSelect = document.getElementById('prefecture');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+    const locationPath = document.getElementById('locationPath');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function updateLocationPath() {
+        const parts = [countrySelect.value, prefectureSelect.value, citySelect.value, districtSelect.value].filter(p => p);
+        locationPath.textContent = parts.length > 0 ? parts.join(' → ') : '—';
+        submitBtn.disabled = !citySelect.value;
+        submitBtn.textContent = citySelect.value ? 'Add Place' : 'Select City First';
+    }
+
+    countrySelect.addEventListener('change', () => {
+        const country = countrySelect.value;
+        prefectureSelect.innerHTML = '<option value="">Select Prefecture</option>';
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        districtSelect.innerHTML = '<option value="">Select District (Optional)</option>';
+        
+        prefectureSelect.disabled = !country;
+        citySelect.disabled = true;
+        districtSelect.disabled = true;
+        
+        if (country && locationData[country]) {
+            Object.keys(locationData[country]).forEach(pref => {
+                const opt = document.createElement('option');
+                opt.value = pref;
+                opt.textContent = pref;
+                prefectureSelect.appendChild(opt);
+            });
+        }
+        updateQuickButtons();
+        updateLocationPath();
+    });
+
+    prefectureSelect.addEventListener('change', () => {
+        const country = countrySelect.value;
+        const prefecture = prefectureSelect.value;
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        districtSelect.innerHTML = '<option value="">Select District (Optional)</option>';
+        
+        citySelect.disabled = !prefecture;
+        districtSelect.disabled = true;
+        
+        if (country && prefecture && locationData[country][prefecture]) {
+            Object.keys(locationData[country][prefecture]).forEach(city => {
+                const opt = document.createElement('option');
+                opt.value = city;
+                opt.textContent = city;
+                citySelect.appendChild(opt);
+            });
+        }
+        updateLocationPath();
+    });
+
+    citySelect.addEventListener('change', () => {
+        const country = countrySelect.value;
+        const prefecture = prefectureSelect.value;
+        const city = citySelect.value;
+        districtSelect.innerHTML = '<option value="">Select District (Optional)</option>';
+        
+        districtSelect.disabled = !city;
+        
+        if (country && prefecture && city && locationData[country][prefecture][city]) {
+            locationData[country][prefecture][city].forEach(dist => {
+                const opt = document.createElement('option');
+                opt.value = dist;
+                opt.textContent = dist;
+                districtSelect.appendChild(opt);
+            });
+        }
+        updateLocationPath();
+    });
+
+    districtSelect.addEventListener('change', updateLocationPath);
+
+    function selectCountry(country) {
+        countrySelect.value = country;
+        countrySelect.dispatchEvent(new Event('change'));
+        updateQuickButtons();
+    }
+
+    function updateQuickButtons() {
+        document.querySelectorAll('.quick-add-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === countrySelect.value);
+        });
+    }
+    </script>
 </body>
 </html>

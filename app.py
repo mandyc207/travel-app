@@ -163,6 +163,8 @@ def map_view():
 def add_place():
     """Add a new place"""
     if request.method == 'POST':
+        country = request.form.get('country', '').strip()
+        prefecture = request.form.get('prefecture', '').strip()
         city = request.form.get('city', '').strip()
         name = request.form.get('name', '').strip()
         category = request.form.get('category', '').strip()
@@ -173,25 +175,27 @@ def add_place():
         if not city or not name or not category:
             return jsonify({'error': 'City, name, and category are required'}), 400
         
+        # Build display city name: "City (Prefecture, Country)" or just "City"
+        if country and prefecture and prefecture not in city:
+            display_city = f"{city} ({prefecture}, {country})"
+        elif country:
+            display_city = f"{city} ({country})"
+        else:
+            display_city = city
+        
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO places (city, name, category, district, address, notes)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (city, name, category, district, address, notes))
+        ''', (display_city, name, category, district, address, notes))
         conn.commit()
         conn.close()
         
-        return redirect(url_for('index', city=city))
+        return redirect(url_for('index', city=display_city))
     
-    # GET request - show the form
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT DISTINCT city FROM places ORDER BY city')
-    cities = [row['city'] for row in cursor.fetchall()]
-    conn.close()
-    
-    return render_template('add.html', cities=cities)
+    # GET request - show the form (no cities needed, they're hardcoded in JS)
+    return render_template('add.html')
 
 @app.route('/api/places', methods=['GET'])
 def api_get_places():
