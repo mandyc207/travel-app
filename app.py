@@ -104,7 +104,15 @@ def index():
     
     # Get places
     if city:
-        cursor.execute('SELECT * FROM places WHERE city = ? ORDER BY category, district, name', (city,))
+        if city.startswith('_all:'):
+            # Filter by prefecture name contained in city string
+            prefecture_filter = city[5:]  # Remove '_all:' prefix
+            cursor.execute(
+                'SELECT * FROM places WHERE city LIKE ? ORDER BY city, category, district, name',
+                (f'%{prefecture_filter}%',)
+            )
+        else:
+            cursor.execute('SELECT * FROM places WHERE city = ? ORDER BY category, district, name', (city,))
     else:
         cursor.execute('SELECT * FROM places ORDER BY city, category, district, name')
     

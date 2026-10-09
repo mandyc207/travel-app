@@ -268,9 +268,10 @@
             <select id="filter-city" onchange="filterCityChanged()" style="flex:1;min-width:100px;" disabled>
                 <option value="">All Cities</option>
             </select>
+            <button onclick="clearFilters()" style="padding:10px 15px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;cursor:pointer;font-size:0.85rem;">✕ Clear</button>
             <div class="view-toggle">
-                <button onclick="window.location.href='/?city=' + document.getElementById('filter-city').value + '&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
-                <button onclick="window.location.href='/?city=' + document.getElementById('filter-city').value + '&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
+                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('filter-city').value || '') + '&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
+                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('filter-city').value || '') + '&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
                 <button onclick="window.location.href='/map'" style="background: transparent; color: rgba(255,255,255,0.9);">🗺️ Map</button>
             </div>
         </div>
@@ -434,12 +435,23 @@
         citySelect.disabled = !prefecture;
         
         if (country && prefecture && locationData[country][prefecture]) {
+            // Add "All in [Prefecture]" option
+            const allOpt = document.createElement('option');
+            allOpt.value = '_all:' + prefecture;
+            allOpt.textContent = 'All in ' + prefecture;
+            citySelect.appendChild(allOpt);
+            
             Object.keys(locationData[country][prefecture]).forEach(city => {
                 const opt = document.createElement('option');
                 opt.value = city;
                 opt.textContent = city;
                 citySelect.appendChild(opt);
             });
+        }
+        
+        // Auto-navigate to show all cities in this prefecture
+        if (prefecture) {
+            applyFilter();
         }
     }
 
@@ -450,6 +462,10 @@
     function applyFilter() {
         const city = citySelect.value;
         window.location.href = '/?city=' + encodeURIComponent(city) + '&view={{ view_mode }}';
+    }
+
+    function clearFilters() {
+        window.location.href = '/?view={{ view_mode }}';
     }
 
     // Restore dropdown state from URL on page load
