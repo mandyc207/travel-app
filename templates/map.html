@@ -27,7 +27,7 @@
         .place-item { display: flex; align-items: center; padding: 14px 20px; border-bottom: 1px solid #eee; cursor: pointer; }
         .place-item:hover { background: #f8f8f8; }
         .place-item.selected { background: #f0f4ff; border-left: 3px solid #667eea; }
-        .place-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 14px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.25); flex-shrink: 0; }
+        .place-dot { width: 18px; height: 18px; border-radius: 50%; margin-right: 14px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); flex-shrink: 0; }
         .place-info { flex: 1; min-width: 0; }
         .place-name { font-weight: 500; color: #333; font-size: 0.95rem; }
         .place-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
@@ -94,12 +94,12 @@
         if (!place.lat || !place.lng) return;
         const color = colors[place.category] || '#95A5A6';
         const marker = L.circleMarker([place.lat, place.lng], {
-            radius: 10,
+            radius: 15,
             fillColor: color,
             color: 'white',
-            weight: 2,
+            weight: 3,
             opacity: 1,
-            fillOpacity: 0.85
+            fillOpacity: 0.9
         }).addTo(map);
         
         marker.bindPopup(`<strong>${place.name}</strong><br>${place.district || place.category}<br><a href="${place.mapsUrl}" target="_blank" style="color:#667eea">Open in Google Maps →</a>`);
