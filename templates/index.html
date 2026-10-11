@@ -254,24 +254,13 @@
     <div class="header">
         <h1>🌍 Travel Collector</h1>
         <div class="filters">
-            <select id="filter-country" onchange="filterCountryChanged()" style="flex:1;min-width:100px;">
-                <option value="">All Countries</option>
-                <option value="Japan">Japan</option>
-                <option value="Hong Kong">Hong Kong</option>
-                <option value="Taiwan">Taiwan</option>
-                <option value="South Korea">South Korea</option>
-                <option value="Thailand">Thailand</option>
-            </select>
-            <select id="filter-prefecture" onchange="filterPrefectureChanged()" style="flex:1;min-width:100px;" disabled>
-                <option value="">All Prefectures</option>
-            </select>
-            <select id="filter-city" onchange="filterCityChanged()" style="flex:1;min-width:100px;" disabled>
+            <select id="location-select" onchange="locationChanged()" style="flex:2;min-width:150px;">
                 <option value="">All Cities</option>
             </select>
             <button onclick="clearFilters()" style="padding:10px 15px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;cursor:pointer;font-size:0.85rem;">✕ Clear</button>
             <div class="view-toggle">
-                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('filter-city').value || '') + '&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
-                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('filter-city').value || '') + '&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
+                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('location-select').value || '') + '&view=category'" {% if view_mode == 'category' %}class="active"{% endif %}>📁 Category</button>
+                <button onclick="window.location.href='/?city=' + encodeURIComponent(document.getElementById('location-select').value || '') + '&view=district'" {% if view_mode == 'district' %}class="active"{% endif %}>📍 District</button>
                 <button onclick="window.location.href='/map'" style="background: transparent; color: rgba(255,255,255,0.9);">🗺️ Map</button>
             </div>
         </div>
@@ -344,7 +333,7 @@
     </div>
 
     <script>
-    const locationData = {
+    var locationData = {
         "Japan": {
             "Fukuoka Prefecture": {
                 "Fukuoka (Fukuoka Prefecture, Japan)": ["Hakata", "Tenjin", "Daimyo", "Yakuin", "Nakasu", "Itoshima", "Chuo"],
@@ -407,120 +396,108 @@
         }
     };
 
-    const countrySelect = document.getElementById('filter-country');
-    const prefectureSelect = document.getElementById('filter-prefecture');
-    const citySelect = document.getElementById('filter-city');
+    var locationSelect = document.getElementById('location-select');
+    var selectedCountry = '';
+    var selectedPrefecture = '';
 
-    function filterCountryChanged() {
-        const country = countrySelect.value;
+    function initDropdown() {
+        while (locationSelect.firstChild) {
+            locationSelect.removeChild(locationSelect.firstChild);
+        }
         
-        // Clear prefecture and city dropdowns properly
-        while (prefectureSelect.firstChild) prefectureSelect.removeChild(prefectureSelect.firstChild);
-        while (citySelect.firstChild) citySelect.removeChild(citySelect.firstChild);
+        var allOpt = document.createElement('option');
+        allOpt.value = '';
+        allOpt.textContent = 'All Cities';
+        locationSelect.appendChild(allOpt);
         
-        const prefAllOpt = document.createElement('option');
-        prefAllOpt.value = '';
-        prefAllOpt.textContent = 'All Prefectures';
-        prefectureSelect.appendChild(prefAllOpt);
+        for (var country in locationData) {
+            var opt = document.createElement('option');
+            opt.value = '_country:' + country;
+            opt.textContent = country;
+            locationSelect.appendChild(opt);
+        }
         
-        const cityAllOpt = document.createElement('option');
-        cityAllOpt.value = '';
-        cityAllOpt.textContent = 'All Cities';
-        citySelect.appendChild(cityAllOpt);
+        selectedCountry = '';
+        selectedPrefecture = '';
+    }
+
+    function locationChanged() {
+        var value = locationSelect.value;
         
-        prefectureSelect.disabled = !country;
-        citySelect.disabled = true;
+        if (value === '') {
+            initDropdown();
+            window.location.href = '/?view={{ view_mode }}';
+            return;
+        }
         
-        if (country && locationData[country]) {
-            Object.keys(locationData[country]).forEach(pref => {
-                const opt = document.createElement('option');
-                opt.value = pref;
-                opt.textContent = pref;
-                prefectureSelect.appendChild(opt);
-            });
+        if (value.startsWith('_country:')) {
+            var country = value.replace('_country:', '');
+            selectedCountry = country;
+            showPrefectures(country);
+        } else if (value.startsWith('_pref:')) {
+            var prefecture = value.replace('_pref:', '');
+            selectedPrefecture = prefecture;
+            showCities(selectedCountry, prefecture);
+        } else if (value.startsWith('_allpref:')) {
+            var prefecture = value.replace('_allpref:', '');
+            window.location.href = '/?city=' + encodeURIComponent('_all:' + prefecture) + '&view={{ view_mode }}';
+        } else {
+            window.location.href = '/?city=' + encodeURIComponent(value) + '&view={{ view_mode }}';
         }
     }
 
-    function filterPrefectureChanged() {
-        const country = countrySelect.value;
-        const prefecture = prefectureSelect.value;
-        
-        // Clear city dropdown properly
-        while (citySelect.firstChild) citySelect.removeChild(citySelect.firstChild);
-        
-        const cityAllOpt = document.createElement('option');
-        cityAllOpt.value = '';
-        cityAllOpt.textContent = 'All Cities';
-        citySelect.appendChild(cityAllOpt);
-        
-        citySelect.disabled = !prefecture;
-        
-        if (country && prefecture && locationData[country][prefecture]) {
-            // Add "All in [Prefecture]" option
-            const allOpt = document.createElement('option');
-            allOpt.value = '_all:' + prefecture;
-            allOpt.textContent = 'All in ' + prefecture;
-            citySelect.appendChild(allOpt);
-            
-            Object.keys(locationData[country][prefecture]).forEach(city => {
-                const opt = document.createElement('option');
-                opt.value = city;
-                opt.textContent = city;
-                citySelect.appendChild(opt);
-            });
+    function showPrefectures(country) {
+        while (locationSelect.firstChild) {
+            locationSelect.removeChild(locationSelect.firstChild);
         }
         
-        // Auto-navigate to show all cities in this prefecture
-        if (prefecture) {
-            applyFilter();
+        var backOpt = document.createElement('option');
+        backOpt.value = '';
+        backOpt.textContent = '← Back to Countries';
+        locationSelect.appendChild(backOpt);
+        
+        var allOpt = document.createElement('option');
+        allOpt.value = '';
+        allOpt.textContent = 'All Cities';
+        locationSelect.appendChild(allOpt);
+        
+        for (var pref in locationData[country]) {
+            var opt = document.createElement('option');
+            opt.value = '_pref:' + pref;
+            opt.textContent = pref;
+            locationSelect.appendChild(opt);
         }
     }
 
-    function filterCityChanged() {
-        applyFilter();
-    }
-
-    function applyFilter() {
-        const city = citySelect.value;
-        window.location.href = '/?city=' + encodeURIComponent(city) + '&view={{ view_mode }}';
+    function showCities(country, prefecture) {
+        while (locationSelect.firstChild) {
+            locationSelect.removeChild(locationSelect.firstChild);
+        }
+        
+        var backOpt = document.createElement('option');
+        backOpt.value = '';
+        backOpt.textContent = '← Back to Prefectures';
+        locationSelect.appendChild(backOpt);
+        
+        var allInOpt = document.createElement('option');
+        allInOpt.value = '_allpref:' + prefecture;
+        allInOpt.textContent = 'All in ' + prefecture;
+        locationSelect.appendChild(allInOpt);
+        
+        for (var city in locationData[country][prefecture]) {
+            var opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            locationSelect.appendChild(opt);
+        }
     }
 
     function clearFilters() {
+        initDropdown();
         window.location.href = '/?view={{ view_mode }}';
     }
 
-    // Restore dropdown state from URL on page load
-    function restoreState() {
-        const params = new URLSearchParams(window.location.search);
-        const city = params.get('city');
-        if (!city) return;
-        
-        // Find which country/prefecture this city belongs to
-        for (const [country, prefectures] of Object.entries(locationData)) {
-            for (const [prefecture, cities] of Object.entries(prefectures)) {
-                if (cities.hasOwnProperty(city)) {
-                    // Found the city!
-                    countrySelect.value = country;
-                    countrySelect.dispatchEvent(new Event('change'));
-                    
-                    // Wait for prefecture options to load, then select
-                    setTimeout(() => {
-                        prefectureSelect.value = prefecture;
-                        prefectureSelect.dispatchEvent(new Event('change'));
-                        
-                        // Wait for city options to load, then select
-                        setTimeout(() => {
-                            citySelect.value = city;
-                        }, 50);
-                    }, 50);
-                    return;
-                }
-            }
-        }
-    }
-    
-    // Run on page load
-    restoreState();
+    initDropdown();
     </script>
 </body>
 </html>
