@@ -37,8 +37,6 @@
         .category-Activities { background: #45B7D1; }
         .category-Shopping { background: #96CEB4; }
         .category-Hotel { background: #9B59B6; }
-        .custom-marker { display: block !important; }
-        .leaflet-marker-icon { display: block !important; }
     </style>
 </head>
 <body>
@@ -92,21 +90,21 @@
         {% endfor %}
     ];
     
-    // Create colored circle icons
-    function createCircleIcon(color) {
+    // Create custom colored marker using path
+    function createMarker(color) {
         return L.divIcon({
-            className: 'custom-marker',
-            html: '<div style="background-color:' + color + ';width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12]
+            html: '<div style="background:' + color + ';width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+            className: '',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+            popupAnchor: [0, -10]
         });
     }
     
     placesData.forEach(place => {
         if (!place.lat || !place.lng) return;
-        const color = colors[place.category] || '#95A5A6';
-        const icon = createCircleIcon(color);
+        const color = colors[place.category] || '#888888';
+        const icon = createMarker(color);
         const marker = L.marker([place.lat, place.lng], { icon: icon }).addTo(map);
         
         marker.bindPopup(`<strong>${place.name}</strong><br>${place.district || place.category}<br><a href="${place.mapsUrl}" target="_blank" style="color:#667eea">Open in Google Maps →</a>`);
