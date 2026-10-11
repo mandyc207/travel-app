@@ -90,17 +90,22 @@
         {% endfor %}
     ];
     
+    // Create colored circle icons
+    function createCircleIcon(color) {
+        return L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="background-color:' + color + ';width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12]
+        });
+    }
+    
     placesData.forEach(place => {
         if (!place.lat || !place.lng) return;
         const color = colors[place.category] || '#95A5A6';
-        const marker = L.circleMarker([place.lat, place.lng], {
-            radius: 15,
-            fillColor: color,
-            color: 'white',
-            weight: 3,
-            opacity: 1,
-            fillOpacity: 0.9
-        }).addTo(map);
+        const icon = createCircleIcon(color);
+        const marker = L.marker([place.lat, place.lng], { icon: icon }).addTo(map);
         
         marker.bindPopup(`<strong>${place.name}</strong><br>${place.district || place.category}<br><a href="${place.mapsUrl}" target="_blank" style="color:#667eea">Open in Google Maps →</a>`);
         
